@@ -12,6 +12,7 @@
 # Platform
 마이스쿨 프로젝트는 다양한 플랫폼을 지원할 예정입니다!
 * [**Android** / **WearOS**](https://github.com/gunyu1019/myschool-android)
-* SKT NUGU 
+* SKT NUGU (NUGU PLAY)
 * 구글 어시스턴트
-* ~~카카오i~~ (미확정, 위 3개 항목 개발 완료 후 진행 예정)
+* ~~카카오i~~ (미확정)
+* ~~빅스비 (Bixby Capsule)~~ (미확정)
