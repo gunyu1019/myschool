@@ -240,11 +240,9 @@ class AudioPlayer(BaseInterface):
 class Response:
     def __init__(
             self,
-            token: str,
             version: str,
             result: str = 'OK'
     ):
-        self.token = token
         self.version = version
         self.result = result
         self.output = {}
@@ -261,7 +259,6 @@ class Response:
 
     def to_dict(self) -> Dict[str, Any]:
         response = {
-            "token": self.token,
             "version": self.version,
             "resultCode": self.result,
             "output": self.output
@@ -278,10 +275,10 @@ class Request:
         # Action
         action = payload['action']
         self.name = action['actionName']
-        self.parameter = {}
-        for x in action['parameter'].keys():
-            self.parameter[x] = Parameter(
-                action['parameter'][x]
+        self.parameters = {}
+        for x in action['parameters'].keys():
+            self.parameters[x] = Parameter(
+                action['parameters'][x]
             )
 
         # Event
@@ -332,7 +329,6 @@ class Request:
 
     def get_response(self, result: str = 'OK') -> Response:
         return Response(
-            token=self.token,
             version=self.version,
             result=result
         )

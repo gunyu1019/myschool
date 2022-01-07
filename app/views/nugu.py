@@ -20,12 +20,7 @@ def health():
 
 @bp.route("/meal", methods=['POST'])
 def school():
-    try:
-        req = Request.from_data(request.data)
-    except KeyError:
-        # 올바르지 못한 접근 > 양식 미 준수
-        return abort(403)
-
+    req = Request.from_data(request.data)
 
     data = meal_invoke(request.args)
     return jsonify(req.get_response("OK").to_dict())
