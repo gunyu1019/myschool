@@ -288,6 +288,7 @@ class Request:
         event = payload.get("event", {})
         self.event = event.get("type")
 
+        # Context
         context = payload['context']
         session = context['session']
         self.id = session["id"]
