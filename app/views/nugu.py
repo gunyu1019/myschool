@@ -5,6 +5,7 @@ from flask import jsonify
 
 from .api import meal_invoke
 from app.models.nugu import *
+from app.config.config import get_config
 
 bp = Blueprint(
     name="nugu_backend",
@@ -20,7 +21,13 @@ def health():
 
 @bp.route("/meal", methods=['POST'])
 def school():
-    req = Request.from_data(request.data)
+    try:
+        req = Request.from_data(request.data)
+    except KeyError:
+        raise abort(403)
 
+    parser = get_config()
+    if req.parameters.get('KEY', None).value != parser.get("authorizeKey", "nugu"):
+        raise abort(403)
     data = meal_invoke(request.args)
     return jsonify(req.get_response("OK").to_dict())
