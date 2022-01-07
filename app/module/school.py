@@ -107,20 +107,23 @@ class School:
             학교의 개교기념일이 들어갑니다.
     """
 
-    def __init__(self, sc_code: str, sd_code, token: str = None, kind: SchoolType = None):
+    def __init__(self, sc_code: str, sd_code, token: str = None, kind: Union[SchoolType, int] = None):
         self.requests = Requests(token)
 
         self.sc_code = sc_code
         self.sd_code = sd_code
+        self.type: Optional[str] = None
         if kind is not None:
             tp = ["초등학교", "중학교", "고등학교", "특수학교"]
-            self.type = tp[kind.value]
+            if isinstance(kind, SchoolType):
+                self.type = tp[kind.value]
+            else:
+                self.type = tp[kind]
 
         self._data = dict()
         self.ofcdc: Optional[str] = None
         self.name: Optional[str] = None
         self.eng_name: Optional[str] = None
-        self.type: Optional[str] = None
         self.provincial: Optional[str] = None
         self.location: Optional[str] = None
         self.post_address: Optional[str] = None
@@ -273,7 +276,7 @@ class School:
         if isinstance(semester, int):
             semester = str(semester)
 
-        class_nm = class_nm.zfill(2)
+        class_nm = class_nm
 
         type_nm = self.type
         if type_nm is None:
@@ -295,14 +298,15 @@ class School:
         if page is not None:
             params["pIndex"] = page
         if from_date is not None and to_date is not None:
-            params['TI_FROM_YMD']=from_date.strftime("%Y%m%d")
-            params['TI_TO_YMD']=to_date.strftime("%Y%m%d")
+            params['TI_FROM_YMD'] = from_date.strftime("%Y%m%d")
+            params['TI_TO_YMD'] = to_date.strftime("%Y%m%d")
             json2 = self.requests.get(
                 f"/hub/{t_id[type_nm]}Timetable",
                 params=params
             )
         else:
             params['ALL_TI_YMD'] = date.strftime("%Y%m%d")
+            print(f"/hub/{t_id[type_nm]}Timetable", params)
             json2 = self.requests.get(
                 f"/hub/{t_id[type_nm]}Timetable",
                 params=params

@@ -25,7 +25,7 @@ SOFTWARE.
 from datetime import datetime
 from typing import Union
 
-from .school import School
+from .school import School, SchoolType
 from .exception import NotFound
 from .model import Response
 from .request import Requests, check_requests
@@ -138,6 +138,7 @@ class Client:
             self,
             sc_code: str,
             sd_code,
+            kind: SchoolType,
             grade: Union[int, str],
             class_nm: Union[int, str],
             date: datetime = datetime.now(),
@@ -150,6 +151,7 @@ class Client:
         school = School(
             sc_code=sc_code,
             sd_code=sd_code,
+            kind=kind,
             token=self.token
         )
         return school.timetable(

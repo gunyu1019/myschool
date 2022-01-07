@@ -1,5 +1,6 @@
 from flask import Blueprint
-from .api import meal
+from flask import request
+from .api import meal_invoke
 
 bp = Blueprint(
     name="nugu_backend",
@@ -8,6 +9,12 @@ bp = Blueprint(
 )
 
 
-@bp.route("/meal", methods=['GET'])
+@bp.route("/health", methods=['GET'])
+def health():
+    return 'OK'
+
+
+@bp.route("/meal", methods=['POST'])
 def school():
-    return meal()
+    print(request.data.decode('utf8'))
+    return str(meal_invoke(request.args))
