@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional, Union, Literal
 from enum import Enum
+from json import loads
 
 
 class BaseInterface:
@@ -157,6 +158,7 @@ class Display(BaseInterface):
         self.badge: Optional[bool] = None
         self.items = []
         self.content = {}
+        self.caption: Optional[Union[TextObject, str]] = None
 
     def get_response(
             self,
@@ -179,8 +181,10 @@ class Display(BaseInterface):
             response['background'] = self._background
         if len(self.items) > 0:
             response['listItems'] = self.items
-        if self.badge is not None:
-            response['badgeNumber'] = self.badge
+            if self.badge is not None:
+                response['badgeNumber'] = self.badge
+            if self.caption is not None:
+                response['caption'] = self._get_text(self.caption)
         if self.content is not {}:
             response['content'] = self.content
         return response
@@ -233,6 +237,40 @@ class AudioPlayer(BaseInterface):
         self.activity = data['playerActivity']
 
 
+class Response:
+    def __init__(
+            self,
+            token: str,
+            version: str,
+            result: str = 'OK'
+    ):
+        self.token = token
+        self.version = version
+        self.result = result
+        self.output = {}
+        self.directives = {}
+
+    def set_output(self, key, value):
+        self.output[key] = value
+
+    def remove_output(self, key):
+        del self.output[key]
+
+    def get_output(self, key):
+        return self.output[key]
+
+    def to_dict(self) -> Dict[str, Any]:
+        response = {
+            "token": self.token,
+            "version": self.version,
+            "resultCode": self.result,
+            "output": self.output
+        }
+        if self.directives != {}:
+            response['directives'] = self.directives
+        return response
+
+
 class Request:
     def __init__(self, payload: Dict[str, Any]):
         self.version = payload['version']
@@ -265,6 +303,12 @@ class Request:
         self._display = interfaces.get("Display")
         self._player = interfaces.get("AudioPlayer")
 
+    @classmethod
+    def from_data(cls, data):
+        return cls(
+            loads(data.decode('utf8'))
+        )
+
     @property
     def is_player(self) -> bool:
         return self._player is not None
@@ -284,6 +328,13 @@ class Request:
         if not self.is_player:
             return
         return Display(self._player)
+
+    def get_response(self, result: str = 'OK') -> Response:
+        return Response(
+            token=self.token,
+            version=self.version,
+            result=result
+        )
 
 
 class Parameter:
