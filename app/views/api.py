@@ -130,7 +130,7 @@ def school_invoke(parameter: MultiDict, convert: bool = True):
     )
 
 
-def meal_invoke(parameter: MultiDict, convert: bool = True):
+def meal_invoke(parameter: MultiDict):
     parser = get_config()
     if not parser.has_option("token", "neis"):
         return Response(
@@ -272,7 +272,7 @@ def meal_invoke(parameter: MultiDict, convert: bool = True):
     )
 
 
-def timetable_invoke(parameter: MultiDict, convert: bool = True):
+def timetable_invoke(parameter: MultiDict):
     parser = get_config()
     if not parser.has_option("token", "neis"):
         return Response(

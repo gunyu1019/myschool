@@ -9,6 +9,7 @@ from .api import school_invoke, meal_invoke
 from app.models.nugu import *
 from app.config.config import get_config
 from app.module.school import School
+from app.utils.date import DateConvert
 
 bp = Blueprint(
     name="nugu_backend",
@@ -47,8 +48,36 @@ def school():
 
             response.set_output("area_candidate", area_candidate.replace(",", "", 1))
             return jsonify(response.to_dict())
-    data = meal_invoke(request.args)
-    return jsonify(req.get_response("OK").to_dict())
+
+    date_item = DateConvert.from_parameter(
+        param1=req.parameters.get('meal_datetiem_1'),
+        param2=req.parameters.get('meal_datetiem_2')
+    )
+    if date_item is None:
+        return jsonify(req.get_response("date_not_found").to_dict())
+    default_parameter = MultiDict([
+        ('provincial', school_data[0].sc_code),
+        ('code', school_data[0].sd_code),
+        ('date', date_item.date.strftime('%Y%m%d'))
+    ])
+    result = meal_invoke(default_parameter)
+    data = result.data['data']
+
+    meal_type = req.parameters.get('meal_type', Parameter.empty()).value
+    _meal_type = {
+        '조식': 'breakfast',
+        '중식': 'lunch',
+        '석식': 'dinner'
+    }[meal_type]
+
+    response = req.get_response("OK")
+    response.set_output("datetime_format", date_item.format)
+    response.set_output(
+        "meal_status",
+        ", ".join(data[_meal_type]['meal'])
+    )
+    print(response.output)
+    return jsonify(response.to_dict())
 
 
 def get_school_data(parameter: Dict[str, Parameter], parameter_key: str):
