@@ -335,9 +335,16 @@ class Request:
 
 
 class Parameter:
-    def __init__(self, data: Dict[str, str]):
+    def __init__(self, data: Dict[str, Optional[str]]):
         self.type: Optional[str] = data.get("type")
         self.value: str = data["value"]
+
+    @classmethod
+    def empty(cls):
+        cls.value: Optional[str]
+        return cls(
+            data={"value": None}
+        )
 
     def __str__(self) -> str:
         return self.value

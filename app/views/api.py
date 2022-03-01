@@ -14,7 +14,7 @@ from app.response import Response
 bp = Blueprint(
     name="school_api",
     import_name="school_api",
-    url_prefix="/api"
+    url_prefix="/"
 )
 
 allergy_lists = ["난류", "우유", "메밀", "땅콩", "대두", "밀", "고등어", "게", "새우", "돼지고기", "복숭아",
