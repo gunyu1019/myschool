@@ -36,7 +36,7 @@ def timetable():
     return timetable_invoke(req.args).get_flask_response()
 
 
-def school_invoke(parameter: MultiDict):
+def school_invoke(parameter: MultiDict, convert: bool = True):
     parser = get_config()
     if not parser.has_option("token", "neis"):
         return Response(
@@ -104,19 +104,22 @@ def school_invoke(parameter: MultiDict):
             continue
         total = h["list_total_count"]
 
-    for _sc in result.body:
-        _sc: School
-        final_result.append({
-            "provincial_code": _sc.sc_code,
-            "provincial": _sc.ofcdc,
-            "code": _sc.sd_code,
-            "name": _sc.name,
-            "eng_name": _sc.eng_name,
-            "type": _sc.type,
-            "address": _sc.address1,
-            "telephone": _sc.telephone,
-            "website": _sc.website
-        })
+    if convert:
+        for _sc in result.body:
+            _sc: School
+            final_result.append({
+                "provincial_code": _sc.sc_code,
+                "provincial": _sc.ofcdc,
+                "code": _sc.sd_code,
+                "name": _sc.name,
+                "eng_name": _sc.eng_name,
+                "type": _sc.type,
+                "address": _sc.address1,
+                "telephone": _sc.telephone,
+                "website": _sc.website
+            })
+    else:
+        final_result = result.body
 
     return Response(
         {
@@ -127,7 +130,7 @@ def school_invoke(parameter: MultiDict):
     )
 
 
-def meal_invoke(parameter: MultiDict):
+def meal_invoke(parameter: MultiDict, convert: bool = True):
     parser = get_config()
     if not parser.has_option("token", "neis"):
         return Response(
@@ -269,7 +272,7 @@ def meal_invoke(parameter: MultiDict):
     )
 
 
-def timetable_invoke(parameter: MultiDict):
+def timetable_invoke(parameter: MultiDict, convert: bool = True):
     parser = get_config()
     if not parser.has_option("token", "neis"):
         return Response(
