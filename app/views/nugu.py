@@ -38,22 +38,7 @@ def school():
 
     # regional_redundancy_error
     if len(school_data) > 1:
-        location_data = []
-        for _school in school_data:
-            if _school.name.endswith(school_name) and len(
-                _school.name.replace(school_name, '')
-            ) > 2:
-                location_data.append(_school)
-
-        locate = {}
-        for i in location_data:
-            location_i = i.address1.split()
-            if location_i[0] not in locate:
-                locate[location_i[0]] = list()
-
-            if location_i[1] not in locate[location_i[0]]:
-                locate[location_i[0]].append(location_i[1])
-
+        locate = check_regional_redundancy(name=school_name, data=school_data)
         if len(locate) > 1:
             response = req.get_response("regional_redundancy_error")
             area_candidate = str()
@@ -82,3 +67,22 @@ def get_school_data(parameter: Dict[str, Parameter], parameter_key: str):
     else:
         final_result = data
     return final_result
+
+
+def check_regional_redundancy(name, data):
+    location_data = []
+    for _school in data:
+        if _school.name.endswith(name) and len(
+                _school.name.replace(name, '')
+        ) > 2:
+            location_data.append(_school)
+
+    locate = {}
+    for i in location_data:
+        location_i = i.address1.split()
+        if location_i[0] not in locate:
+            locate[location_i[0]] = list()
+
+        if location_i[1] not in locate[location_i[0]]:
+            locate[location_i[0]].append(location_i[1])
+    return locate
