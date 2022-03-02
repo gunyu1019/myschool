@@ -171,7 +171,7 @@ class Display(BaseInterface):
             "type": display_type.value,
             "duration": self.duration
         }
-        if self.content is not {} and len(self.items) > 0:
+        if len(self.content) > 0 and len(self.items) > 0:
             raise TypeError()
 
         if self._title != {}:
@@ -199,7 +199,7 @@ class Display(BaseInterface):
             self,
             text: Union[str, TextObject],
             subtext: Union[str, TextObject] = None,
-            logo: ImageObject = None,
+            icon: ImageObject = None,
             sub_icon: ImageObject = None,
             button: Union[str, TextObject] = None,
     ):
@@ -208,10 +208,10 @@ class Display(BaseInterface):
         }
         if subtext is not None:
             self._title['subtext'] = self._get_text(text)
-        if logo is not None:
-            self._title['logo'] = logo.to_dict()
+        if icon is not None:
+            self._title['logo'] = icon.to_dict()
         if sub_icon is not None:
-            self._title['subicon'] = sub_icon
+            self._title['subicon'] = sub_icon.to_dict()
         if button is not None:
             self._title['button'] = self._get_text(button)
 

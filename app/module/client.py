@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 
 from .school import School, SchoolType
 from .exception import NotFound
@@ -119,8 +119,8 @@ class Client:
             sc_code: str,
             sd_code,
             date: datetime = datetime.now(),
-            from_date: datetime = None,
-            to_date: datetime = None,
+            from_date: Optional[datetime] = None,
+            to_date: Optional[datetime] = None,
             page: int = None
     ):
         school = School(
@@ -142,8 +142,8 @@ class Client:
             grade: Union[int, str],
             class_nm: Union[int, str],
             date: datetime = datetime.now(),
-            from_date: datetime = None,
-            to_date: datetime = None,
+            from_date: Optional[datetime] = None,
+            to_date: Optional[datetime] = None,
             semester: Union[int, str] = None,
             year: Union[int, str] = None,
             page: int = None

@@ -14,7 +14,7 @@ from app.response import Response
 bp = Blueprint(
     name="school_api",
     import_name="school_api",
-    url_prefix="/"
+    url_prefix="/school"
 )
 
 allergy_lists = ["난류", "우유", "메밀", "땅콩", "대두", "밀", "고등어", "게", "새우", "돼지고기", "복숭아",
@@ -186,8 +186,18 @@ def meal_invoke(parameter: MultiDict):
     date: datetime = datetime.strptime(
         _date, "%Y%m%d"
     )
-    start_date: Optional[str] = parameter.get("startDate", default=None)
-    end_date: Optional[str] = parameter.get("endDate", default=None)
+    _start_date: Optional[str] = parameter.get("startDate", default=None)
+    _end_date: Optional[str] = parameter.get("endDate", default=None)
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    if _start_date is not None:
+        start_date = datetime.strptime(
+            _start_date, "%Y%m%d"
+        )
+    if _end_date is not None:
+        end_date = datetime.strptime(
+            _end_date, "%Y%m%d"
+        )
 
     client = Client(
         token=parser.get('token', 'neis')
@@ -356,8 +366,16 @@ def timetable_invoke(parameter: MultiDict):
     date: datetime = datetime.strptime(
         _date, "%Y%m%d"
     )
-    start_date: Optional[str] = parameter.get("startDate", default=None)
-    end_date: Optional[str] = parameter.get("endDate", default=None)
+    _start_date: Optional[str] = parameter.get("startDate", default=None)
+    _end_date: Optional[str] = parameter.get("endDate", default=None)
+    if _start_date is not None:
+        start_date: datetime = datetime.strptime(
+            _start_date, "%Y%m%d"
+        )
+    if _end_date is not None:
+        end_date: datetime = datetime.strptime(
+            _end_date, "%Y%m%d"
+        )
 
     client = Client(
         token=parser.get('token', 'neis')

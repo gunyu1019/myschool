@@ -19,7 +19,7 @@ from app.utils.date import DateConvert
 bp = Blueprint(
     name="nugu_backend",
     import_name="nugu_backend",
-    url_prefix="/nugu"
+    url_prefix="/school/nugu"
 )
 
 
@@ -105,7 +105,7 @@ def meal_nugu():
         ", ".join(data[_meal_type]['meal'])
     )
     if req.is_display:
-        display = req.display()
+        display = req.display
         display.badge = False
         icon = ImageObject(url="https://api.yhs.kr/school/nugu/icon")
         display.set_title(
@@ -117,53 +117,83 @@ def meal_nugu():
         )
         positive = []
         for key in ['breakfast', 'lunch', 'dinner']:
-            positive.append(data[key])
+            if data[key] is not None:
+                positive.append(data[key])
 
         if len(positive) >= 2:
             for key in convert_type_name.keys():
+                value = convert_type_name[key]
+                if key == meal_type:
+                    continue
                 display.items.append({
                     "token": display.token,
                     "header": {
                         "text": key
                     },
                     "body": {
-                        "text": ", ".join(data[key]['meal'])
+                        "text": ", ".join(data[value]['meal'])
                     }
                 })
         else:
-            first_date = DateConvert.get_first_date(date_item)
-            end_data = DateConvert.get_last_date(date_item)
+            start_date = DateConvert.get_first_date(date_item.datetime)
+            end_date = DateConvert.get_last_date(date_item.datetime)
             another_request_parameter = MultiDict([
                 ('provincial', school_data[0].sc_code),
                 ('code', school_data[0].sd_code),
-                ('startDate', first_date),
-                ('endDate', end_data)
+                ('startDate', start_date.strftime('%Y%m%d')),
+                ('endDate', end_date.strftime('%Y%m%d'))
             ])
             display.items.append({
                 "token": display.token,
                 "header": {
                     "text": DateConvert.change_weekday(date_item.date.weekday())
                 },
-                "body": {
-                    "text": ", ".join(data[_meal_type]['meal'])
-                }
+                "body": [{
+                    "text": x
+                } for x in data[_meal_type]['meal']]
             })
             another_result = meal_invoke(another_request_parameter)
             if another_result.status == 200:
-                for another_data in another_result.data['data']:
-                    another_date = datetime.datetime.strptime(str(
-                        another_data['date']
-                    ), '%Y%m%d')
+                another_data = {}
+                for _another_data in sorted(another_result.data['data'], key=lambda x: int(x['date'])):
+                    if _another_data['date'] not in data:
+                        another_data[int(_another_data['date'])] = []
+
+                    if _another_data['type'] == meal_type:
+                        another_data[int(_another_data['date'])] = _another_data
+
+                for _date in range(5):
+                    _another_date = DateConvert.add_days(start_date, _date)
+                    if _another_date.strftime('%Y%m%d') == date_item.date.strftime('%Y%m%d'):
+                        continue
+                    _another_data = another_data.get(int(_another_date.strftime('%Y%m%d')))
+                    if _another_data is None:
+                        display.items.append({
+                            "token": display.token,
+                            "header": {
+                                "text": DateConvert.change_weekday(
+                                    _another_date.weekday()
+                                )
+                            },
+                            "body": [{
+                                "text": "급식정보 없음."
+                            }],
+                            "footer": {
+                                "text": "휴교 중이거나, 방학 중에는 급식 정보가 없습니다."
+                            }
+                        })
+                        continue
+
                     display.items.append({
                         "token": display.token,
                         "header": {
                             "text": DateConvert.change_weekday(
-                                another_date.weekday()
+                                _another_date.weekday()
                             )
                         },
-                        "body": {
-                            "text": ", ".join(another_data[_meal_type]['meal'])
-                        }
+                        "body": [{
+                            "text": x
+                        } for x in data[_meal_type]['meal']]
                     })
         response.directives.append(display.get_response(DisplayType.TextList3))
     return jsonify(response.to_dict())
@@ -237,7 +267,7 @@ def timetable_nugu():
         )
     )
     if req.is_display:
-        display = req.display()
+        display = req.display
         display.badge = False
         icon = ImageObject(url="https://api.yhs.kr/school/nugu/icon")
         display.set_title(
