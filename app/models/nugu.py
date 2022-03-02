@@ -154,7 +154,6 @@ class Display(BaseInterface):
         self._title = {}
         self._background = {}
         self.duration: Optional[Literal['SHORT', 'MID', 'LONG', 'LONGEST']] = None
-        self.response_type: Optional[DisplayType] = None
         self.badge: Optional[bool] = None
         self.items = []
         self.content = {}
@@ -162,14 +161,14 @@ class Display(BaseInterface):
 
     def get_response(
             self,
-            display_type: DisplayType = None,
+            display_type: DisplayType,
             service_id: str = None
     ) -> Dict[str, Any]:
         response = {
             "token": self.token,
             "version": self.version,
             "playServiceId": service_id or self.service_id,
-            "type": display_type.value or self.response_type,
+            "type": display_type.value,
             "duration": self.duration
         }
         if self.content is not {} and len(self.items) > 0:
@@ -246,7 +245,7 @@ class Response:
         self.version = version
         self.result = result
         self.output = {}
-        self.directives = {}
+        self.directives = []
 
     def set_output(self, key, value):
         self.output[key] = value
@@ -323,9 +322,9 @@ class Request:
 
     @property
     def display(self) -> Optional[Display]:
-        if not self.is_player:
+        if not self._display:
             return
-        return Display(self._player)
+        return Display(self._display)
 
     def get_response(self, result: str = 'OK') -> Response:
         return Response(

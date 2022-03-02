@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Blueprint
 from flask import request
 from flask import abort
@@ -79,11 +81,12 @@ def meal_nugu():
     data = result.data['data']
 
     meal_type = req.parameters.get('meal_type', Parameter.empty()).value
-    _meal_type = {
+    convert_type_name = {
         '조식': 'breakfast',
         '중식': 'lunch',
         '석식': 'dinner'
-    }[meal_type]
+    }
+    _meal_type = convert_type_name[meal_type]
 
     response = req.get_response("OK")
     response.set_output("datetime_format", date_item.format)
@@ -91,6 +94,66 @@ def meal_nugu():
         "meal_status",
         ", ".join(data[_meal_type]['meal'])
     )
+    if req.is_display:
+        display = req.display()
+        display.badge = False
+        display.set_title(
+            text="{0}의 {1} 정보".format(
+                school_name,
+                meal_type
+            )
+        )
+        positive = []
+        for key in ['breakfast', 'lunch', 'dinner']:
+            positive.append(data[key])
+
+        if len(positive) >= 2:
+            for key in convert_type_name.keys():
+                display.items.append({
+                    "token": display.token,
+                    "header": {
+                        "text": key
+                    },
+                    "body": {
+                        "text": ", ".join(data[key]['meal'])
+                    }
+                })
+        else:
+            first_date = DateConvert.get_first_date(date_item)
+            end_data = DateConvert.get_last_date(date_item)
+            another_request_parameter = MultiDict([
+                ('provincial', school_data[0].sc_code),
+                ('code', school_data[0].sd_code),
+                ('startDate', first_date),
+                ('endDate', end_data)
+            ])
+            display.items.append({
+                "token": display.token,
+                "header": {
+                    "text": DateConvert.change_weekday(date_item.date.weekday())
+                },
+                "body": {
+                    "text": ", ".join(data[_meal_type]['meal'])
+                }
+            })
+            another_result = meal_invoke(another_request_parameter)
+            if another_result.status == 200:
+                for another_data in another_result.data['data']:
+                    another_date = datetime.datetime.strptime(str(
+                        another_data['date']
+                    ), '%Y%m%d')
+                    display.items.append({
+                        "token": display.token,
+                        "header": {
+                            "text": DateConvert.change_weekday(
+                                another_date.weekday()
+                            )
+                        },
+                        "body": {
+                            "text": ", ".join(another_data[_meal_type]['meal'])
+                        }
+                    })
+        response.directives.append(display.get_response(DisplayType.TextList3))
     return jsonify(response.to_dict())
 
 
@@ -140,8 +203,7 @@ def timetable_nugu():
         ('kind', ["초등학교", "중학교", "고등학교", "특수학교"].index(school_data[0].type)),
         ('grade', grade_name.value.rstrip('학년')),
         ('class', class_name.value.rstrip('반')),
-        # ('date', date_item.date.strftime('%Y%m%d'))
-        ('date', "20211228")
+        ('date', date_item.date.strftime('%Y%m%d')) if not req.is_test else ('date', "20211228")
     ])
 
     result = timetable_invoke(default_parameter)
@@ -162,6 +224,25 @@ def timetable_nugu():
             [x['subject'] for x in timetable]
         )
     )
+    if req.is_display:
+        display = req.display()
+        display.badge = False
+        display.set_title(
+            text="{0} {1} {2}의 시간표 정보".format(
+                school_name, grade_name, class_name
+            )
+        )
+        for subject in timetable:
+            display.items.append({
+                "token": display.token,
+                "header": {
+                    "text": "{0} 교시".format(subject['time'])
+                },
+                "body": {
+                    "text": "{0}".format(subject['subject'])
+                }
+            })
+        response.directives.append(display.get_response(DisplayType.TextList1))
     return jsonify(response.to_dict())
 
 
