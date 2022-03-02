@@ -45,7 +45,23 @@ class DateConvert:
     @classmethod
     def from_parameter(cls, param1: Parameter, param2: Parameter = Parameter.empty()):
         now = datetime.datetime.now()
-        if param1.value == "TODAY" and param2 is None:
+        if param1.type is None and param1.value == "TODAY":
+            if param2.type == "BID_DT_WEEK":
+                week = param2.value
+                if week == "W.0":
+                    return cls(now, "이번주")
+                elif week == "W.1":
+                    return cls(cls.add_days(now, 7), "다음주")
+                elif week == "W.2":
+                    return cls(cls.add_days(now, 14), "다다음주")
+                elif week == "W.3":
+                    return cls(cls.add_days(now, 21), "다다다음주")
+                elif week == "W.-1":
+                    return cls(cls.add_days(now, -7), "지난주")
+                elif week == "W.-2":
+                    return cls(cls.add_days(now, -14), "지지난주")
+                elif week == "W.-3":
+                    return cls(cls.add_days(now, -21), "지지지난주")
             return cls(now, "오늘")
 
         if param1.type == "BID_DT_DAY":
@@ -68,22 +84,19 @@ class DateConvert:
             else:
                 return None
         elif param1.type == "BID_DT_MDAY":
+            month = now.month
             if param2.type == "BID_DT_YMONTH":
                 month = param2.value
-            else:
-                month = now.month
-            day = param1.value
+            days = param1.value
             try:
-                dt = datetime.datetime(now.year, int(month), int(day))
+                dt = datetime.datetime(now.year, int(month), int(days))
             except ValueError:
-                return None
-            return cls(dt, f"{month}월 {day}일")
+                return
+            return cls(dt, "{0}월 {1}일".format(month, days))
         elif param1.type == "BID_DT_WDAY":
             first_day = cls.get_first_date(now)
 
-            _param2 = False
             if param1.value.startswith("SUN"):
-                _param2 = True
                 if param1.value == "SUN.W.-1":
                     week_day = cls.add_days(first_day, -1)
                     week_name = "지난주 일요일"
@@ -99,8 +112,8 @@ class DateConvert:
                 else:
                     week_day = cls.add_days(first_day, 6)
                     week_name = "일요일"
+                return cls(week_day, week_name)
             elif param1.value.startswith("WEEKBEGIN"):
-                _param2 = True
                 if param1.value == "WEEKBEGIN.W.-1":
                     week_day = cls.add_days(first_day, -7)
                     week_name = "지난주 월요일"
@@ -116,6 +129,7 @@ class DateConvert:
                 else:
                     week_day = first_day
                     week_name = "월요일"
+                return cls(week_day, week_name)
             elif param1.value == "MON":
                 week_day = first_day
                 week_name = "월요일"
@@ -135,9 +149,9 @@ class DateConvert:
                 week_day = cls.add_days(first_day, 5)
                 week_name = "토요일"
             else:
-                return None
+                return
 
-            if param2.type == "BID_DT_WEEK" and not _param2:
+            if param2.type == "BID_DT_WEEK":
                 week = param2.value
                 if week == "W.0":
                     week_name = "이번주 " + week_name
@@ -160,19 +174,3 @@ class DateConvert:
                     week_name = "지지난주 " + week_name
                     week_day = cls.add_days(week_day, -21)
                 return cls(week_day, week_name)
-            elif param2.type == "BID_DT_WEEK":
-                week = param2.value
-                if week == "W.0":
-                    return cls(now, "이번주")
-                elif week == "W.1":
-                    return cls(cls.add_days(now, 7), "다음주")
-                elif week == "W.2":
-                    return cls(cls.add_days(now, 14), "다다음주")
-                elif week == "W.3":
-                    return cls(cls.add_days(now, 21), "다다다음주")
-                elif week == "W.-1":
-                    return cls(cls.add_days(now, -7), "지난주")
-                elif week == "W.-2":
-                    return cls(cls.add_days(now, -14), "지지난주")
-                elif week == "W.-3":
-                    return cls(cls.add_days(now, -21), "지지지난주")

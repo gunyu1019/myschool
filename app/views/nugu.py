@@ -5,9 +5,10 @@ from flask import jsonify
 from typing import List
 from werkzeug.datastructures import MultiDict
 
-from .api import school_invoke, meal_invoke
+from .api import school_invoke, meal_invoke, timetable_invoke
 from app.models.nugu import *
 from app.config.config import get_config
+from app.response import Response
 from app.module.school import School
 from app.utils.date import DateConvert
 
@@ -24,7 +25,7 @@ def health():
 
 
 @bp.route("/meal", methods=['POST'])
-def school():
+def meal_nugu():
     try:
         req = Request.from_data(request.data)
     except KeyError:
@@ -36,6 +37,12 @@ def school():
         raise abort(403)
     school_name = req.parameters["meal_school_name"].value
     school_data = get_school_data(req.parameters, 'meal')
+    if isinstance(school_data, Response):
+        if school_data.status == 404:
+            response = req.get_response("school_not_found")
+            return jsonify(response.to_dict())
+        response = req.get_response("backend_proxy_error")
+        return jsonify(response.to_dict())
 
     # regional_redundancy_error
     if len(school_data) > 1:
@@ -51,7 +58,7 @@ def school():
 
     date_item = DateConvert.from_parameter(
         param1=req.parameters.get('meal_datetiem_1'),
-        param2=req.parameters.get('meal_datetiem_2')
+        param2=req.parameters.get('meal_datetiem_2', Parameter.empty())
     )
     if date_item is None:
         return jsonify(req.get_response("date_not_found").to_dict())
@@ -60,7 +67,15 @@ def school():
         ('code', school_data[0].sd_code),
         ('date', date_item.date.strftime('%Y%m%d'))
     ])
+
     result = meal_invoke(default_parameter)
+    if result.status != 200:
+        if result.status == 404:
+            response = req.get_response("meal_not_found")
+            response.set_output("datetime_format", date_item.format)
+            return jsonify(response.to_dict())
+        response = req.get_response("backend_proxy_error")
+        return jsonify(response.to_dict())
     data = result.data['data']
 
     meal_type = req.parameters.get('meal_type', Parameter.empty()).value
@@ -76,7 +91,77 @@ def school():
         "meal_status",
         ", ".join(data[_meal_type]['meal'])
     )
-    print(response.output)
+    return jsonify(response.to_dict())
+
+
+@bp.route("/timetable", methods=['POST'])
+def timetable_nugu():
+    try:
+        req = Request.from_data(request.data)
+    except KeyError:
+        raise abort(403)
+    # print([(x, req.parameters[x].value) for x in req.parameters])
+
+    parser = get_config()
+    if req.parameters.get('Authorization', Parameter.empty()).value != parser.get("authorizeKey", "nugu"):
+        raise abort(403)
+    school_name = req.parameters["timetable_school_name"].value
+    school_data = get_school_data(req.parameters, 'timetable')
+    grade_name = req.parameters['timetable_grade']
+    class_name = req.parameters['timetable_class']
+    if isinstance(school_data, Response):
+        if school_data.status == 404:
+            response = req.get_response("school_not_found")
+            return jsonify(response.to_dict())
+        response = req.get_response("backend_proxy_error")
+        return jsonify(response.to_dict())
+
+    # regional_redundancy_error
+    if len(school_data) > 1:
+        locate = check_regional_redundancy(name=school_name, data=school_data)
+        if len(locate) > 1:
+            response = req.get_response("regional_redundancy_error")
+            area_candidate = str()
+            for i in locate.keys():
+                area_candidate += f", {i} {', '.join(locate.get(i))}"
+
+            response.set_output("area_candidate", area_candidate.replace(",", "", 1))
+            return jsonify(response.to_dict())
+
+    date_item = DateConvert.from_parameter(
+        param1=req.parameters.get('timetable_datetime_1'),
+        param2=req.parameters.get('timetable_datetime_2', Parameter.empty())
+    )
+    if date_item is None:
+        return jsonify(req.get_response("date_not_found").to_dict())
+    default_parameter = MultiDict([
+        ('provincial', school_data[0].sc_code),
+        ('code', school_data[0].sd_code),
+        ('kind', ["초등학교", "중학교", "고등학교", "특수학교"].index(school_data[0].type)),
+        ('grade', grade_name.value.rstrip('학년')),
+        ('class', class_name.value.rstrip('반')),
+        # ('date', date_item.date.strftime('%Y%m%d'))
+        ('date', "20211228")
+    ])
+
+    result = timetable_invoke(default_parameter)
+    if result.status != 200:
+        if result.status == 404:
+            response = req.get_response("timetable_not_found")
+            return jsonify(response.to_dict())
+        response = req.get_response("backend_proxy_error")
+        return jsonify(response.to_dict())
+    data = result.data['data']
+
+    response = req.get_response("OK")
+    response.set_output("datetime_format", date_item.format)
+    timetable = sorted(data['timetable'], key=lambda x: x['time'])
+    response.set_output(
+        "timetable_status",
+        ", ".join(
+            [x['subject'] for x in timetable]
+        )
+    )
     return jsonify(response.to_dict())
 
 
@@ -87,7 +172,7 @@ def get_school_data(parameter: Dict[str, Parameter], parameter_key: str):
     ])
     result = school_invoke(default_parameter, convert=False)
     if result.status != 200:
-        return
+        return result
     data: List[School] = result.data['data']
 
     if '{0}_lcp'.format(parameter_key) in parameter:

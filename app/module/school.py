@@ -306,7 +306,6 @@ class School:
             )
         else:
             params['ALL_TI_YMD'] = date.strftime("%Y%m%d")
-            print(f"/hub/{t_id[type_nm]}Timetable", params)
             json2 = self.requests.get(
                 f"/hub/{t_id[type_nm]}Timetable",
                 params=params
