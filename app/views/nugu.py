@@ -4,12 +4,14 @@ from flask import Blueprint
 from flask import request
 from flask import abort
 from flask import jsonify
+from flask import send_file
 from typing import List
 from werkzeug.datastructures import MultiDict
 
 from .api import school_invoke, meal_invoke, timetable_invoke
 from app.models.nugu import *
 from app.config.config import get_config
+from app.directory import directory
 from app.response import Response
 from app.module.school import School
 from app.utils.date import DateConvert
@@ -24,6 +26,14 @@ bp = Blueprint(
 @bp.route("/health", methods=['GET'])
 def health():
     return 'OK'
+
+
+@bp.route("/icon", methods=['GET'])
+def icon_nugu():
+    return send_file(
+        '{0}/static/logo-for-nugu.png'.format(directory),
+        mimetype='image/png'
+    )
 
 
 @bp.route("/meal", methods=['POST'])
@@ -97,7 +107,9 @@ def meal_nugu():
     if req.is_display:
         display = req.display()
         display.badge = False
+        icon = ImageObject(url="https://api.yhs.kr/school/nugu/icon")
         display.set_title(
+            icon=icon,
             text="{0}의 {1} 정보".format(
                 school_name,
                 meal_type
@@ -227,7 +239,9 @@ def timetable_nugu():
     if req.is_display:
         display = req.display()
         display.badge = False
+        icon = ImageObject(url="https://api.yhs.kr/school/nugu/icon")
         display.set_title(
+            icon=icon,
             text="{0} {1} {2}의 시간표 정보".format(
                 school_name, grade_name, class_name
             )

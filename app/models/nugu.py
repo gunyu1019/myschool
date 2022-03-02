@@ -209,7 +209,7 @@ class Display(BaseInterface):
         if subtext is not None:
             self._title['subtext'] = self._get_text(text)
         if logo is not None:
-            self._title['logo'] = logo
+            self._title['logo'] = logo.to_dict()
         if sub_icon is not None:
             self._title['subicon'] = sub_icon
         if button is not None:
