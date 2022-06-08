@@ -1,9 +1,6 @@
+<h1 align="center"><img src="icon.png" width="20px" alt=""/>마이스쿨(MySchool)</h1>
 <p align="center">
-    <img src="{IMAGE LOGO}" width="30%" alt="마이스쿨"/>
-</p>
-<h1 align="center">마이스쿨(MySchool)</h1>
-<p align="center">
-    {DESCRIPTION}
+    내손 안의 학교 
 </p>
 
 # Introduce
