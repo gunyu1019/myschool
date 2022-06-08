@@ -1,5 +1,5 @@
-<img src="icon.png" width="100px" alt="" align="center"/>
-<h1 align="center">마이스쿨(MySchool)</h1>
+<h1 align="center"><img src="https://raw.githubusercontent.com/gunyu1019/myschool/main/icon.png" width="50px" alt="" align="center"/>
+마이스쿨(MySchool)</h1>
 <p align="center">
     내손 안의 학교 
 </p>
