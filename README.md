@@ -17,7 +17,7 @@
   * [**Android** / **WearOS**](https://github.com/gunyu1019/myschool-android)
   * ~~iOS~~ 
 * 인공지능 비서 (Artificial Intelligence Secretary)
-  * SKT NUGU (NUGU PLAY)
-  * 구글 어시스턴트
+  * SKT NUGU
+  * 구글 어시스턴트 (Google Assistant)
   * ~~카카오i~~
   * ~~빅스비 (Bixby Capsule)~~
