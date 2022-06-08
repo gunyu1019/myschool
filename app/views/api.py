@@ -9,6 +9,7 @@ from werkzeug.datastructures import MultiDict
 
 from app.config.config import get_config
 from app.module import Client, NotFound, RequestsExcetion, School, Timetable, Meal
+from app.module.school import SchoolType
 from app.response import Response
 
 bp = Blueprint(
@@ -348,6 +349,7 @@ def timetable_invoke(parameter: MultiDict):
     page: Optional[int] = parameter.get("page", default=1, type=int)
     sc_type: Optional[int] = parameter.get("kind", default=None, type=int)
 
+    kind = None
     if sc_type is None or not 0 <= sc_type < 4:
         # 0: 초등학교 / 1: 중학교 / 2: 고등학교 / 3: 특수학교
         return Response(
@@ -358,6 +360,11 @@ def timetable_invoke(parameter: MultiDict):
                 )
             }, 400
         )
+    for x in SchoolType.__members__.keys():
+        v = getattr(SchoolType, x)
+        if v.value == sc_type:
+            kind = v
+            break
 
     _date: Optional[str] = parameter.get(
         "date",
@@ -368,12 +375,14 @@ def timetable_invoke(parameter: MultiDict):
     )
     _start_date: Optional[str] = parameter.get("startDate", default=None)
     _end_date: Optional[str] = parameter.get("endDate", default=None)
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     if _start_date is not None:
-        start_date: datetime = datetime.strptime(
+        start_date = datetime.strptime(
             _start_date, "%Y%m%d"
         )
     if _end_date is not None:
-        end_date: datetime = datetime.strptime(
+        end_date = datetime.strptime(
             _end_date, "%Y%m%d"
         )
 
@@ -385,7 +394,7 @@ def timetable_invoke(parameter: MultiDict):
         result = client.timetable(
             grade=grade,
             class_nm=class_name,
-            kind=sc_type,
+            kind=kind,
             sd_code=sd_code,
             sc_code=provincial,
             date=date,

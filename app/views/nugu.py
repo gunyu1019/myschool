@@ -1,20 +1,19 @@
-import datetime
+from typing import List
 
 from flask import Blueprint
-from flask import request
 from flask import abort
 from flask import jsonify
+from flask import request
 from flask import send_file
-from typing import List
 from werkzeug.datastructures import MultiDict
 
-from .api import school_invoke, meal_invoke, timetable_invoke
-from app.models.nugu import *
 from app.config.config import get_config
 from app.directory import directory
-from app.response import Response
+from app.models.nugu import *
 from app.module.school import School
+from app.response import Response
 from app.utils.date import DateConvert
+from .api import school_invoke, meal_invoke, timetable_invoke
 
 bp = Blueprint(
     name="nugu_backend",
@@ -245,7 +244,7 @@ def timetable_nugu():
         ('kind', ["초등학교", "중학교", "고등학교", "특수학교"].index(school_data[0].type)),
         ('grade', grade_name.value.rstrip('학년')),
         ('class', class_name.value.rstrip('반')),
-        ('date', date_item.date.strftime('%Y%m%d')) if not req.is_test else ('date', "20211228")
+        ('date', date_item.date.strftime('%Y%m%d'))  # if not req.is_test else ('date', "20211228")
     ])
 
     result = timetable_invoke(default_parameter)

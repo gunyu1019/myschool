@@ -135,5 +135,8 @@ dmypy.json
 *.ini
 app/config/config.ini
 cert.pem
-fullchain.pem
-privkey.pem
+fullchain10.pem
+privkey10.pem
+
+# Google Assistant Webhook Sampling
+response.json
