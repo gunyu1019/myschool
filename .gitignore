@@ -139,4 +139,4 @@ fullchain10.pem
 privkey10.pem
 
 # Google Assistant Webhook Sampling
-response.json
+app/response.json
