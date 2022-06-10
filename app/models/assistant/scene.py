@@ -1,16 +1,36 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from app.utils import get_enum
-from .slot import SlotStatus, Slot, SlotMode, SlotFillingStatus
+from .slot import Slot, SlotFillingStatus
 
 
 class Scene:
-    def __init__(self, payload: Dict[str, Any]):
+    def __init__(
+            self,
+            name: str,
+            slot_status: SlotFillingStatus,
+            slots: Optional[Dict[str, Slot]] = None,
+            next: Optional[str] = None
+    ):
+        self.slot_status = slot_status
+        self.name = name
+        self.slot = slots
+        self.next = next
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, Any]):
         # Name
-        self.name = payload["name"]
+        name = payload["name"]
 
         # Slot
-        # self.slot_status = get_enum(SlotStatus, payload['slotStatus'])
+        slot_status = get_enum(SlotFillingStatus, payload['slotFillingStatus'])
+        slot = {
+            key: Slot(value) for key, value in payload.get('slots', {}).items()
+        }
 
         # Next Scene
         next_scene = payload.get('next', {})
-        self.next = next_scene.get('name')
+        next = next_scene.get('name')
+
+        return cls(
+            name=name, slots=slot, slot_status=slot_status, next=next
+        )

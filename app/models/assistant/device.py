@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from app.utils import get_enum
 
 
@@ -14,26 +14,56 @@ class Capability(Enum):
 
 
 class Timezone:
-    def __init__(self, payload: Dict[str, Any]):
-        self.id = payload['id']
-        self.version = payload['version']
+    def __init__(self, timezone_id: str, version: str):
+        self.id = timezone_id
+        self.version = version
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, Any]):
+        timezone_id = payload['id']
+        version = payload['version']
+        return cls(
+            timezone_id=timezone_id, version=version
+        )
 
 
 class Location:
-    def __init__(self, payload: Dict[str, Any]):
-        self.coordinates = payload.get('coordinates')
-        self.postalAddress = payload.get('postalAddress')
+    def __init__(self, coordinates, postal_address):
+        self.coordinates = coordinates
+        self.postal_address = postal_address
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, Any]):
+        coordinates = payload.get('coordinates')
+        postal_address = payload.get('postalAddress')
+        return cls(
+            coordinates=coordinates, postal_address=postal_address
+        )
 
 
 class Device:
-    def __init__(self, payload: Dict[str, Any]):
+    def __init__(
+            self,
+            capabilities: List[Capability],
+            location: Optional[Location] = None,
+            timezone: Optional[Timezone] = None
+    ):
+        self.capabilities = capabilities
+        self.location = location
+        self.timezone = timezone
+
+    @classmethod
+    def from_payload(cls, payload: Dict[str, Any]):
         capabilities = payload['capabilities']
-        self.capabilities: List[Capability] = [
+        _capabilities: List[Capability] = [
             get_enum(Capability, x) for x in capabilities
         ]
 
         location = payload.get('location')
-        self.location = Location(location) if location is not None else None
+        _location = Location.from_payload(location) if location is not None else None
 
         timezone = payload.get('timeZone')
-        self.timezone = Timezone(timezone) if timezone is not None else None
+        _timezone = Timezone.from_payload(timezone) if timezone is not None else None
+        return cls(
+            capabilities=_capabilities, location=_location, timezone=_timezone
+        )

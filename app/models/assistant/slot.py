@@ -1,6 +1,5 @@
 from enum import Enum
 from typing import Any, Dict
-from .intent import Intent
 from app.utils import get_enum
 
 

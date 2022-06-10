@@ -19,11 +19,11 @@ class Request:
 
         # Scene
         scene = payload.get("intent", {})
-        self.scene = Scene(scene) if scene is not None else None
+        self.scene = Scene.from_payload(scene) if scene is not None else None
 
         # Session (Required & Response Parameter)
         session = payload['session']
-        self.session = Session.from_payload(payload)
+        self.session = Session.from_payload(session)
 
         # User (Required)
         user = payload['user']
@@ -35,7 +35,7 @@ class Request:
 
         # Device (Required)
         device = payload['device']
-        self.device = Device(device)
+        self.device = Device.from_payload(device)
 
         # Context
         context = payload.get('context')

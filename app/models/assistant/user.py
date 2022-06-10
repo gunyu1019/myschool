@@ -2,6 +2,7 @@ import datetime
 from typing import Any, Dict
 from enum import Enum
 from app.utils import get_enum
+from .engagement import Engagement
 from .entitlements import PackageEntitlements
 
 
