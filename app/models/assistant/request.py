@@ -1,7 +1,10 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from .intent import Intent
 from .scene import Scene
 from .session import Session
+from .user import User
+from .device import Device
+from .context import Context
 
 
 class Request:
@@ -16,7 +19,7 @@ class Request:
 
         # Scene
         scene = payload.get("intent", {})
-        self.scene = Scene(scene)
+        self.scene = Scene(scene) if scene is not None else None
 
         # Session (Required & Response Parameter)
         session = payload['session']
@@ -24,12 +27,16 @@ class Request:
 
         # User (Required)
         user = payload['user']
+        self.user = User(user)
 
         # Home
         home = payload.get('home')
+        self.home: Optional[Dict[str, Any]] = home.get('params') if isinstance(home, Dict) else None
 
         # Device (Required)
         device = payload['device']
+        self.device = Device(device)
 
         # Context
         context = payload.get('context')
+        self.context = Context(context) if context is not None else None
