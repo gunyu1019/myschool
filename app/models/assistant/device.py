@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from app.utils import get_enum
+from app.utils.enum import get_enum
 
 
 class Capability(Enum):

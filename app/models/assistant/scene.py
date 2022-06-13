@@ -1,5 +1,5 @@
 from typing import Any, Dict, Optional
-from app.utils import get_enum
+from app.utils.enum import get_enum
 from .slot import Slot, SlotFillingStatus
 
 

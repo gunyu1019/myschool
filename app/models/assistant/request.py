@@ -18,7 +18,7 @@ class Request:
         self.intent = Intent(intent)
 
         # Scene
-        scene = payload.get("intent", {})
+        scene = payload.get("scene", {})
         self.scene = Scene.from_payload(scene) if scene is not None else None
 
         # Session (Required & Response Parameter)

@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Dict
 from enum import Enum
-from app.utils import get_enum
+from app.utils.enum import get_enum
 from .engagement import Engagement
 from .entitlements import PackageEntitlements
 
@@ -32,7 +32,7 @@ class User:
 
         self.account_linking = get_enum(AccountLinkingStatus, payload['accountLinkingStatus'])
         self.verification = get_enum(UserVerificationStatus, payload['verificationStatus'])
-        self.last_seen = datetime.datetime.fromtimestamp(payload['lastSeenTime'])
+        self.last_seen = datetime.datetime.fromisoformat(payload['lastSeenTime'].rstrip('Z'))
 
         engagement = payload.get('engagement')
         self.engagement = None

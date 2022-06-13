@@ -12,7 +12,7 @@ from app.directory import directory
 from app.models.nugu import *
 from app.module.school import School
 from app.response import Response
-from app.utils.date import DateConvert
+from app.utils import DateConvert
 from .api import school_invoke, meal_invoke, timetable_invoke
 
 bp = Blueprint(
