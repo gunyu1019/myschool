@@ -9,7 +9,6 @@
 # Introduce
 인공지능 비서 또는 모바일을 통하여 급식와 시간표 정보를 더 쉽게 받아보세요!
 
-
 아래는 프로젝트 시현 영상입니다.
 
 <a href="https://www.youtube.com/shorts/AoCFhNuXIgg">
@@ -30,4 +29,5 @@
   * ~~빅스비 (Bixby Capsule)~~
 
 # Others
-* [NUGU 사용자 예상 발화 모델(User Utterence Model)](https://github.com/gunyu1019/myschool-training-data)
+* [NUGU 학교알리미 프로젝트](https://github.com/gunyu1019/NUGU_school)
+* [NUGU 사용자 예상 발화 모델(User Utterence Model)](https://github.com/gunyu1019/NUGU_school_training)
