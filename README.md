@@ -7,11 +7,18 @@
 </p>
 
 # Introduce
-급식와 시간표 정보를 더 쉽게 받아보세요!
+인공지능 비서 또는 모바일을 통하여 급식와 시간표 정보를 더 쉽게 받아보세요!
+
+
+아래는 프로젝트 시현 영상입니다.
+
+<a href="https://www.youtube.com/shorts/AoCFhNuXIgg">
+    <img src="https://img.shields.io/badge/NUGU%20(前%20학교알리미)-505050?style=for-the-badge&logo=youtube" alt="Youtube" >
+</a>
 
 # Platform
 마이스쿨 프로젝트는 다양한 플랫폼(Muiti-Platform)을 지원합니다!
-> ~~밑줄~~은 마이스쿨이 성공적으로 배포를 마친 뒤, 플랫폼 확장을 고려하여 밑줄되어 있습니다.
+> ~~밑줄~~은 마이스쿨 프로젝트가 성공적으로 배포했을 경우, 플랫폼 확장을 고려하여 밑줄되어 있습니다.
 
 * 모바일 디바이스 (Mobile Device)
   * [**Android** / **WearOS**](https://github.com/gunyu1019/myschool-android)
