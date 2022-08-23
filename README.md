@@ -28,3 +28,6 @@
   * 구글 어시스턴트 (Google Assistant)
   * ~~카카오i~~
   * ~~빅스비 (Bixby Capsule)~~
+
+# Others
+* [NUGU 사용자 예상 발화 모델(User Utterence Model)](https://github.com/gunyu1019/myschool-training-data)
